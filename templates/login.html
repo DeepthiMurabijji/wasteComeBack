@@ -1,0 +1,20 @@
+
+
+
+<form action="{% url 'login-output' %}" method="POST">
+
+    {% csrf_token %}}
+
+    <br>
+
+    Username:
+    <input type="text" name="username">
+
+<br>
+
+    Password:
+    <input type="password" name="password">
+
+    <input type="submit" value="Login">
+
+</form>

@@ -1,0 +1,68 @@
+
+
+
+
+
+
+
+
+
+<table>
+
+
+    <tr>
+        <th>Username</th>
+        <th>Area</th>
+        <th>Area Status</th>
+        <th>Admin</th>
+        <th>Authenticate</th>
+    </tr>
+
+
+    <br>
+{% for collector in collectors %}
+    <tr>
+
+        <td>{{ collector.user.username }}</td>>
+        <td>{{ collector.area.area_name }}</td>>
+        <td>{{ collector.area_status }}</td>>
+        <td>
+            {{ collector.is_admin }}
+            
+            <form action="{% url 'admin-permissions-save' username=collector.user.username %}" method="post">
+
+                {% csrf_token %}
+
+                <select name="admin" >
+                    <option value="True">True</option>
+                    <option value="False">False</option>
+                </select>
+
+                <input type="submit" value="Change">
+
+            </form>
+
+        </td>>
+        <td>{{ collector.is_real }}
+
+            <form action="{% url 'collector-authentic-permissions' username=collector.user.username %}" method="post">
+
+                {% csrf_token %}
+
+                <select name="real" >
+                    <option value="True">True</option>
+                    <option value="False">False</option>
+                </select>
+
+                <input type="submit" value="Change">
+
+            </form>
+
+        </td>>
+
+    </tr>
+
+
+{% endfor %}
+
+</table>

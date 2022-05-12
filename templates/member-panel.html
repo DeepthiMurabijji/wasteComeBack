@@ -1,0 +1,16 @@
+
+<form action="{% url 'memeber-job-status' %}" method="post">
+
+    {% csrf_token %}}
+
+    Job Done or no:
+    <select name="job">
+
+        <option value="Done">Done</option>
+        <option value="Not Done">Not Done</option>
+
+    </select>
+
+    <input type="submit" value="submit">
+
+</form>
