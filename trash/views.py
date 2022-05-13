@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from trash.models import *
-
+from django.contrib import messages 
 # Create your views here.
 
 
@@ -46,8 +46,19 @@ def register_save(request):
 
     return redirect('/')
 
+registerKey = True
+
 def loginn(request):
-    return render(request, 'login.html')
+
+    # registerKey = True
+    global registerKey
+    registerKey = True
+
+    context ={
+        'registerKey': registerKey
+    }
+
+    return render(request, 'login.html', context)
 
 
 def login_output(request):
@@ -59,9 +70,12 @@ def login_output(request):
 
         try:
             user = User.objects.get(username=username)
-        
+            print(user)
         except:
-            return HttpResponse("Not right")
+
+            messages.success(request,"PLEASE ENTER CORRECT USERNAME")
+           
+            return render(request, 'login.html',{'message':'PLEASE ENTER CORRECT USERNAME'})
 
         collector = Collector.objects.get(user=user)
 
@@ -71,18 +85,27 @@ def login_output(request):
 
             login(request, authenUser)
             # return HttpResponse("Correcty")
+            global adminKey
 
             if collector.is_admin == True:
-                return render(request, 'admin-panel.html')
+                adminKey = True
+
+                context ={
+                    'adminKey': adminKey,
+                }
+                return render(request, 'admin-panel.html',context)
             else:
                 if collector.is_real == True:
-                    return render(request, 'member-panel.html')
+                    return render(request, 'member-panel.html', {'collector': collector})
                 else:
-                    return HttpResponse("Get the fuck out of here")
+                    return render(request, 'login.html',{'message':'YOUR ACCOUNT IS NOT ACTIVATED !'})
         else: 
-            return HttpResponse("Wrong Credentials")
-
-    return redirect('/')
+            messages.success(request,("There was a problem login "))
+            return render(request, 'login.html',{'message':'PLEASE LOGIN WITH A CORRECT PASSWORD'})
+    
+    else:
+        messages.success(request,('There was a problem login'))
+        return render(request, 'login.html',{'message':'There was a problem login'})
 
 
 def member_job_status(request):
@@ -100,7 +123,7 @@ def member_job_status(request):
         user = User.objects.get(username=username)
         Collector.objects.filter(user = user).update(area_status = job_status)
 
-    return HttpResponse("You submitted!")
+    return render(request, 'thanks.html')
 
 
 def admin_permissions(request):
@@ -153,4 +176,4 @@ def collector_authentic_permissions(request, username):
 
 def logoutt(request):
     logout(request)
-    return redirect('/')
+    return render(request,'home.html')

@@ -1,4 +1,12 @@
+{% extends "navbar.html" %}
 
 
-<a href="{% url 'admin-permissions' %}">Permissions</a>
-<a href="{% url 'logoutt' %}">Logout</a>
+{% block content %}
+<div class="container">
+    
+    <div class="permissions">
+        <a href="{% url 'admin-permissions' %}">Permissions</a>
+    </div>
+</div>
+
+{% endblock %}
