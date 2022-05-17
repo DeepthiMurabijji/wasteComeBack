@@ -1,12 +1,29 @@
 {% extends "navbar.html" %}
 
+{% load static %}
 
 {% block content %}
-<div class="container">
-    
-    <div class="permissions">
-        <a href="{% url 'admin-permissions' %}">Permissions</a>
+
+<head>
+  <link rel="stylesheet" href="{% static 'css/adminpanel.css' %}" />
+  <title>Admin Panel</title>
+</head>
+
+
+
+<div class="float-parent-element">
+    <div class="float-child-element">
+      <div class="red">
+       <a href="{% url 'admin-permissions' %}"><img src="{% static 'icons8-permission-96.png' %}" alt="img"></a> 
+        <p style="color: white; font-size:15px; font-weight:bold">Admin Permissions</p>
+      </div>
     </div>
-</div>
+    <div class="float-child-element">
+      <div class="yellow">
+        <img src="{% static 'icons8-test-account-96.png' %}" alt="imf">
+        <p style="color: white; font-size:15px; font-weight:bold">My Profie</p>
+      </div>
+    </div>
+  </div>    
 
 {% endblock %}

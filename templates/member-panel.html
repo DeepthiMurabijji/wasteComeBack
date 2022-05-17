@@ -13,15 +13,14 @@
             <th>Job Status</th>
         </tr>
         <tr>
-            <td>{{collector.username}}</td>
-            <td>{{collector.email}}</td>
+            <td>{{collector.user.username }}</td>
+            <td>{{collector.user.email }}</td>
             <td>{{collector.area}}</td>
             <td>
                 <form action="{% url 'memeber-job-status' %}" method="post">
 
-                    {% csrf_token %}}
+                    {% csrf_token %}
                 
-                    Job Done or no:
                     <select name="job">
                 
                         <option value="Done">Done</option>
@@ -34,6 +33,7 @@
                 </form>
             </td>
         </tr>
+        
     </table>
 </div>
 

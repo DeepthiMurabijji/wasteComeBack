@@ -44,8 +44,9 @@ def register_save(request):
             collector.save()
 
 
-    return redirect('/')
+    return render(request, 'waiting.html')
 
+    
 registerKey = True
 
 def loginn(request):
@@ -96,7 +97,11 @@ def login_output(request):
                 return render(request, 'admin-panel.html',context)
             else:
                 if collector.is_real == True:
-                    return render(request, 'member-panel.html', {'collector': collector})
+                    adminKey = True
+                    context ={
+                         'adminKey': adminKey,
+                         }
+                    return render(request, 'member-panel.html', {'collector': collector, 'adminKey': adminKey})
                 else:
                     return render(request, 'login.html',{'message':'YOUR ACCOUNT IS NOT ACTIVATED !'})
         else: 
@@ -107,11 +112,20 @@ def login_output(request):
         messages.success(request,('There was a problem login'))
         return render(request, 'login.html',{'message':'There was a problem login'})
 
+def admin_panel(request):
+    adminKey = True
+
+    context ={
+        'adminKey': adminKey,
+    }
+    return render(request, 'admin-panel.html', context)
+
 
 def member_job_status(request):
 
     if request.method == 'POST':
 
+        global job_status
         username = request.user.username
         job_status = request.POST.get('job')
 
@@ -119,20 +133,26 @@ def member_job_status(request):
             job_status = True
         else:
             job_status = False
-
+    
         user = User.objects.get(username=username)
         Collector.objects.filter(user = user).update(area_status = job_status)
+        context = {
+                'job_status': job_status
+            }
 
-    return render(request, 'thanks.html')
+
+    return render(request, 'thank.html', context)
 
 
 def admin_permissions(request):
 
     collector = Collector.objects.all()
+    adminKey = True
 
     context = {
 
-        'collectors': collector
+        'collectors': collector,
+         'adminKey': adminKey,
 
     }
 

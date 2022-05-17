@@ -6,12 +6,36 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Thank you </title>
+    <Style>
+        .center{
+            margin:auto;
+            width: 85%;
+            padding: 10%;
+        }
+
+        .center a{
+            margin-left: 50%;
+        }
+    </Style>
 </head>
 <body>
-    <h1>Thank You </h1>
-    <p>your response has been recorded</p>
+    <div class="center">
+      {% if job_status %} 
 
-    <a href="{% url'home' %}"><img src="{% url 'static/icons8-home.gif' %}"alt="Download"></a>
+      <h1 style="font-size: 70px;">Congratulations on accomplishing your task</h1> 
+       
+
+      <a href="{% url 'home' %}" title="Go back to Home" style="margin-left:10%"><img src="{% static 'icons8-completed-task-96.png' %}"   alt="Download" width="180px" height="180px"></a>
+      
+
+      {% else %} 
+      
+      <h1 style="font-size: 100px;"> Please complete your task </h1>
+      <img src="{% static 'disappointed.gif' %}"  alt="Download" style="float:inline-end">
+      <a href="{% url 'home' %}" title="Go back to Home"><img src="{% static 'icons8-home.gif' %}"   alt="Download" width="80px" height="80px" ></a>
+
+      {% endif %}
+    </div>
 </body>
 </html>

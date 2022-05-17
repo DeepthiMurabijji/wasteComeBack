@@ -1,8 +1,17 @@
 {% extends "navbar.html" %}
 
-
+{% load static %}
 {% block content %}
+<head>
+    <title>Admin Permissions</title>
+    <link rel="stylesheet" href="{% static 'css/adminpermission.css' %}" />
+</head>
 
+
+<a href="{% url 'admin-panel' %}" ><img src="{% static 'icons8-previous-32.png' %}" title="Go Back"></a> 
+    
+
+<h2>Admin Permissions </h2>
 <table class="table table-hover">
 
 
@@ -10,8 +19,10 @@
         <th>Username</th>
         <th>Area</th>
         <th>Area Status</th>
-        <th>Admin</th>
-        <th>Authenticate</th>
+        <th>Admin_status</th>
+        <th>Is.admin ?</th>
+        <th>Authenticate_status</th>
+        <th>Authenciate</th>
     </tr>
 
 
@@ -19,42 +30,50 @@
 {% for collector in collectors %}
     <tr>
 
-        <td>{{ collector.user.username }}</td>>
-        <td>{{ collector.area.area_name }}</td>>
-        <td>{{ collector.area_status }}</td>>
+        <td>{{ collector.user.username }}</td>
+        <td>{{ collector.area.area_name }}</td>
+        <td>{{ collector.area_status }}</td>
+        <td>{{ collector.is_admin }} </td>
         <td>
-            {{ collector.is_admin }}
-            
             <form action="{% url 'admin-permissions-save' username=collector.user.username %}" method="post">
 
                 {% csrf_token %}
 
-                <select name="admin" >
+                <!-- <select name="admin" >
                     <option value="True">True</option>
                     <option value="False">False</option>
-                </select>
+                </select> -->
 
-                <input type="submit" value="Change">
-
+                <input type="radio" id="true" name="admin" value="True">
+                <label for="true">TRUE</label><br>
+                <input type="radio" id="false" name="admin" value="False">
+                <label for="false">FALSE</label>
+                <input class='update' type='image' src="{% static 'icons8-save-50.png' %}" value="Change">
             </form>
 
-        </td>>
-        <td>{{ collector.is_real }}
+        </td>
 
+        <td>{{ collector.is_real }}</td>
+        <td>
             <form action="{% url 'collector-authentic-permissions' username=collector.user.username %}" method="post">
 
                 {% csrf_token %}
 
-                <select name="real" >
-                    <option value="True">True</option>
-                    <option value="False">False</option>
-                </select>
+                <!-- <select name="real" >
+                   <option value="True">True</option>
+                   <option value="False">False</option>
+                </select> -->
 
-                <input type="submit" value="Change">
+
+                <input type="radio" id="true" name="real" value="True">
+                <label for="true">TRUE</label><br>
+                <input type="radio" id="false" name="real" value="False">
+                <label for="false">FALSE</label>
+                <input class='update' type='image' src="{% static 'icons8-save-50.png' %}" value="Change">
 
             </form>
 
-        </td>>
+        </td>
 
     </tr>
 

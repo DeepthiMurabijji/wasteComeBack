@@ -11,8 +11,10 @@ urlpatterns = [
     path('register/', views.register, name="register"),
     path('register-save/', views.register_save, name="register-save"),
     path('memeber-job-status/', views.member_job_status, name="memeber-job-status"),
+    path('admin-panel/', views.admin_panel, name="admin-panel"),
     path('admin-permissions/', views.admin_permissions, name="admin-permissions"),
     path('admin-permissions-save/<str:username>/', views.admin_permissions_save, name="admin-permissions-save"),
     path('collector-authentic-permissions/<str:username>/', views.collector_authentic_permissions, name="collector-authentic-permissions"),
+    
     
 ]
