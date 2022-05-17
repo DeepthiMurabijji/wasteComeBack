@@ -17,8 +17,9 @@
 
     <tr>
         <th>Username</th>
+        <th>Email</th>
         <th>Area</th>
-        <th>Area Status</th>
+        <th>Job Status</th>
         <th>Admin_status</th>
         <th>Is.admin ?</th>
         <th>Authenticate_status</th>
@@ -31,6 +32,7 @@
     <tr>
 
         <td>{{ collector.user.username }}</td>
+        <td>{{collector.user.email}} </td>
         <td>{{ collector.area.area_name }}</td>
         <td>{{ collector.area_status }}</td>
         <td>{{ collector.is_admin }} </td>

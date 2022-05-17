@@ -1,3 +1,4 @@
+
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
@@ -20,6 +21,8 @@ def register(request):
 
 def register_save(request):
 
+    areas = Areas.objects.all()
+
     if request.method == 'POST':
 
         username = request.POST.get('username')
@@ -30,7 +33,32 @@ def register_save(request):
         areas = Areas.objects.get(area_name = request.POST.get('area')) 
 
         if password == password1:
-            user = User.objects.create_user(username = username, email = email)
+
+            if (User.objects.filter(username=username).exists()):
+                print("username already exists")
+                areas = Areas.objects.all()
+
+                context = {
+                            'areas': areas,
+                            'name': 'User already exists try another',
+                }
+                return render(request, 'register.html',context)  
+            else:
+                # user = User.objects.create_user(username = username,email = email)
+
+                if (User.objects.filter(email = email).exists()):
+                    print("email already exists")
+                    areas = Areas.objects.all()
+
+                    context = {
+                        'areas': areas,
+                        'email': 'Email already exists try another',
+                    }
+                    return render(request, 'register.html', context)  
+                else:
+                    user = User.objects.create_user(username = username,email = email)
+
+        
             user.set_password(password)
             user.save()
 
@@ -42,11 +70,19 @@ def register_save(request):
             collector.area_status = False
             collector.is_real = False
             collector.save()
+        else:
+            areas = Areas.objects.all()
+
+            context = {
+                 'areas': areas,
+                 'message': 'password does not match',
+            }
+            return render(request, 'register.html',context) 
 
 
     return render(request, 'waiting.html')
 
-    
+
 registerKey = True
 
 def loginn(request):
