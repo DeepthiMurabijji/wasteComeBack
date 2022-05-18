@@ -2,8 +2,10 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from trash.models import *
 from django.contrib import messages 
+from django.urls import reverse
 # Create your views here.
 
 
@@ -117,6 +119,7 @@ def login_output(request):
         collector = Collector.objects.get(user=user)
 
         authenUser = authenticate(username = username, password = password)
+        print(authenUser)
 
         if authenUser is not None:
 
@@ -129,8 +132,11 @@ def login_output(request):
 
                 context ={
                     'adminKey': adminKey,
+                    'collector': collector,
                 }
-                return render(request, 'admin-panel.html',context)
+                # return render(request, 'admin-panel.html',context)
+                # print("Collector Here",type(collector),type(collector.user.username))
+                return redirect('admin-panel',collector)  
             else:
                 if collector.is_real == True:
                     adminKey = True
@@ -146,16 +152,24 @@ def login_output(request):
     
     else:
         messages.success(request,('There was a problem login'))
-        return render(request, 'login.html',{'message':'There was a problem login'})
+        return render(request, 'login.html')
 
-def admin_panel(request):
+def admin_panel(request, collector):
+    print("I am here at Panel",collector)
     adminKey = True
-
     context ={
         'adminKey': adminKey,
+        'collector': collector,
     }
     return render(request, 'admin-panel.html', context)
 
+def admin_profile(request,username):
+    user = User.objects.get(username=username)
+    profile = Collector.objects.get(user=user)
+    context = {
+        'profile': profile
+    }
+    return render(request, 'adminprofile.html', context)
 
 def member_job_status(request):
     global findKey
