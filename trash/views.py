@@ -158,6 +158,8 @@ def admin_panel(request):
 
 
 def member_job_status(request):
+    global findKey
+    findKey = True
 
     if request.method == 'POST':
 
@@ -173,7 +175,8 @@ def member_job_status(request):
         user = User.objects.get(username=username)
         Collector.objects.filter(user = user).update(area_status = job_status)
         context = {
-                'job_status': job_status
+                'job_status': job_status,
+                'findKey': findKey,
             }
 
 
@@ -184,11 +187,14 @@ def admin_permissions(request):
 
     collector = Collector.objects.all()
     adminKey = True
+    findKey = True
 
     context = {
 
         'collectors': collector,
          'adminKey': adminKey,
+         'findKey': findKey,
+         
 
     }
 
@@ -228,6 +234,15 @@ def collector_authentic_permissions(request, username):
         Collector.objects.filter(user=user).update(is_real = isRealChoice)
 
     return redirect('admin-permissions')
+
+def admin_area(request):
+
+    adminKey = True
+    context = {
+        'adminKey' : adminKey,
+    }
+
+    return render(request, 'adminarea.html', context)
 
 
 def logoutt(request):

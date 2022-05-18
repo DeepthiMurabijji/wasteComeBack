@@ -1,0 +1,28 @@
+.form-floating{
+    max-width: 75%;
+    margin: auto;
+    padding: 1%;
+}
+
+.form-floating label{
+    padding:3%;
+}
+
+.jumbotron{
+    padding-top: 8%;
+    width: 80%;
+    margin: auto;
+    height: 100%;
+    padding-bottom:10%;
+}
+
+.jumbotron button{
+    margin-left: 13%;
+}
+
+.jumbotron h2{
+    font-size: 50px;
+    text-align: center;
+    padding:3%;
+    
+}
