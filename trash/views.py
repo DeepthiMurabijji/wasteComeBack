@@ -256,12 +256,69 @@ def collector_authentic_permissions(request, username):
 def admin_area(request):
 
     adminKey = True
-    context = {
-        'adminKey' : adminKey,
-    }
+    areas = Areas.objects.all()
 
-    return render(request, 'adminarea.html', context)
+    if request.method == 'POST':
 
+        area_name = request.POST.get('areaname')
+        house_name = request.POST.get('housename')
+        address = request.POST.get('address')
+        house = Houses()
+
+        if (Areas.objects.filter(area_name=area_name).exists()):
+            print ('Areas already exists')
+            house.area = Areas.objects.get(area_name=area_name)
+            house.house_name = house_name
+            house.house_address = address
+            house.save()
+        else:
+            print("areas not exists")
+            area = Areas()
+            area.area_name = area_name
+            area.save()
+            # areas = Areas.objects.get(area_name = request.POST.get('area'))  
+            print('Area is added now !')
+            house.area = area
+            house.house_name = house_name
+            house.house_address = address
+            house.save()
+        context ={
+            'adminKey' : adminKey,
+            'areas': areas,
+            'success' : "your response has been recorded",
+        }
+        return render(request, 'adminarea.html', context)
+    else:
+        context = {
+            'adminKey' : adminKey,
+            'areas': areas,
+        }
+
+        return render(request, 'adminarea.html', context)
+
+
+def admin_search(request):
+    adminKey = True
+    if request.method == 'POST':
+
+        findout = request.POST['username']
+        #print("search: ",findout)
+        #user = User.objects.filter(username = findout)
+       # search = Collector.objects.filter(user)
+        print('________________________________________________________')
+       # print("search got: ",search)
+        # print(user)
+        user = User.objects.filter(username__contains = findout)
+        # search = Collector.objects.prefetch_related('user').filter(user=user)
+        search = Collector.objects.filter(user_id__in = user)
+        context = {
+            'search' : search,
+            'adminKey' : adminKey,
+        }
+
+        return render(request, 'admin-search.html',context)
+    else:
+        return HttpResponse("not found", status=404)
 
 def logoutt(request):
     logout(request)

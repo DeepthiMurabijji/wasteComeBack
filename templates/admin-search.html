@@ -1,0 +1,40 @@
+{% extends "navbar.html" %}
+
+{% load static %}
+
+{% block content %}
+
+<table class="table table-hover">
+    <tr>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Area</th>
+        <th>Job Status</th>
+        <th>Admin_status</th>
+        <!-- <th>Is.admin ?</th> -->
+        <th>Authenticate_status</th>
+        <!-- <th>Authenciate</th> -->
+    </tr>
+
+    {% for collector in search %}
+    <tr>
+
+        <td>{{ collector.user.username }}</td>
+        <td>{{collector.user.email}} </td>
+        <td>{{ collector.area.area_name }}</td>
+        <td>{{ collector.area_status }}</td>
+        <td>{{ collector.is_admin }} </td>
+
+
+        <td>{{ collector.is_real }}</td>
+        
+
+    </tr>
+
+
+{% endfor %}
+
+
+</table>
+
+{% endblock %}

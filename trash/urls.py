@@ -17,5 +17,6 @@ urlpatterns = [
     path('collector-authentic-permissions/<str:username>/', views.collector_authentic_permissions, name="collector-authentic-permissions"),
     path('admin-profile/<str:username>/', views.admin_profile, name="admin-profile"),
     path('admin-area/', views.admin_area, name="admin-area"),
+    path('admin-search/', views.admin_search, name="admin-search"),
     
 ]
