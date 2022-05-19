@@ -23,7 +23,7 @@ class Houses(models.Model):
 
     area = models.ForeignKey(Areas, on_delete = models.CASCADE)
     house_name = models.CharField(max_length=20)
-    house_no = models.CharField(max_length=30)
+    house_address = models.CharField(max_length=50, blank=True)
 
 
     def __str__(self) -> str:

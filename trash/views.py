@@ -101,6 +101,8 @@ def loginn(request):
 
 
 def login_output(request):
+    global registerKey
+    registerKey = True
 
     if request.method == 'POST':
 
@@ -125,7 +127,7 @@ def login_output(request):
 
             login(request, authenUser)
             # return HttpResponse("Correcty")
-            global adminKey
+           
 
             if collector.is_admin == True:
                 adminKey = True
@@ -152,7 +154,7 @@ def login_output(request):
     
     else:
         messages.success(request,('There was a problem login'))
-        return render(request, 'login.html')
+        return render(request, 'login.html', {'registerKey': registerKey})
 
 def admin_panel(request, collector):
     print("I am here at Panel",collector)
@@ -166,8 +168,10 @@ def admin_panel(request, collector):
 def admin_profile(request,username):
     user = User.objects.get(username=username)
     profile = Collector.objects.get(user=user)
+    adminKey = True
     context = {
-        'profile': profile
+        'profile': profile,
+        'adminKey': adminKey,
     }
     return render(request, 'adminprofile.html', context)
 
