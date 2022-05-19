@@ -80,10 +80,9 @@ def register_save(request):
                  'message': 'password does not match',
             }
             return render(request, 'register.html',context) 
-
-
-    return render(request, 'waiting.html')
-
+        return render(request, 'waiting.html')
+    else:
+        return render(request, 'register.html')
 
 registerKey = True
 
@@ -119,6 +118,9 @@ def login_output(request):
             return render(request, 'login.html',{'message':'PLEASE ENTER CORRECT USERNAME'})
 
         collector = Collector.objects.get(user=user)
+        house = Houses.objects.filter(area=collector.area)
+        print("here is the house",house)
+
 
         authenUser = authenticate(username = username, password = password)
         print(authenUser)
@@ -144,8 +146,10 @@ def login_output(request):
                     adminKey = True
                     context ={
                          'adminKey': adminKey,
+                         'collector': collector,
+                         'house': house,
                          }
-                    return render(request, 'member-panel.html', {'collector': collector, 'adminKey': adminKey})
+                    return render(request, 'member-panel.html', context)
                 else:
                     return render(request, 'login.html',{'message':'YOUR ACCOUNT IS NOT ACTIVATED !'})
         else: 
