@@ -17,6 +17,9 @@ class Areas(models.Model):
     def __str__(self):
         return self.area_name
 
+    def housecount(self):
+        houses = Houses.objects.filter(area = self)
+        return houses.count()+1
 
 
 class Houses(models.Model):

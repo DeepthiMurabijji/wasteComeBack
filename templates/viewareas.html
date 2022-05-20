@@ -1,0 +1,38 @@
+{% extends "navbar.html" %} 
+
+{% load static %} 
+
+{% block content %}  
+
+<head>
+    <title>Areas</title>
+    <link rel="stylesheet"  type="text/css" href="{% static 'css/viewareas.css' %}" />
+
+<div class="area">
+    <table >
+        <tr>
+            <th>Area ID</th>
+            <th>Area Name</th>
+            <th>House Name</th>
+            <th>Address</th>
+        </tr>
+        {% for area in areas %} 
+        <tr>
+            <td rowspan="{{area.housecount}}">{{area.id}}</td>
+            <td rowspan="{{area.housecount}}">{{area.area_name}}</td>
+        </tr>
+            
+        
+            {% for house in houses %} 
+            {% if house.area == area %}
+            <tr>
+            <td>{{house.house_name}}</td>
+            <td>{{house.house_address}}</td>
+        </tr>
+        {% endif %}
+        {% endfor %}        
+        {% endfor %}
+    </table>
+</div>
+
+{% endblock %}

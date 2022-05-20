@@ -4,16 +4,22 @@
 
 {% block content %}
 
+<head>
+    <title>Your Search</title>
+    <link rel="stylesheet" href="{% static 'css/adminsearch.css' %}" />
+</head>
+
 <table class="table table-hover">
     <tr>
         <th>Username</th>
         <th>Email</th>
         <th>Area</th>
+        <th>Houses</th>
         <th>Job Status</th>
         <th>Admin_status</th>
-        <!-- <th>Is.admin ?</th> -->
+        <th>Is.admin ?</th>
         <th>Authenticate_status</th>
-        <!-- <th>Authenciate</th> -->
+        <th>Authenciate</th>
     </tr>
 
     {% for collector in search %}
@@ -25,9 +31,34 @@
         <td>{{ collector.area_status }}</td>
         <td>{{ collector.is_admin }} </td>
 
+        <td>
+            <form action="{% url 'admin-permissions-save' username=collector.user.username %}" method="post">
+
+                {% csrf_token %}
+                <input type="radio" id="true" name="admin" value="True">
+                <label for="true">TRUE</label><br>
+                <input type="radio" id="false" name="admin" value="False">
+                <label for="false">FALSE</label>
+                <input class='update' type='image' src="{% static 'icons8-save-50.png' %}" value="Change">
+            </form>
+
+        </td>
+
 
         <td>{{ collector.is_real }}</td>
-        
+        <td>
+            <form action="{% url 'collector-authentic-permissions' username=collector.user.username %}" method="post">
+
+                {% csrf_token %}
+                <input type="radio" id="true" name="real" value="True">
+                <label for="true">TRUE</label><br>
+                <input type="radio" id="false" name="real" value="False">
+                <label for="false">FALSE</label>
+                <input class='update' type='image' src="{% static 'icons8-save-50.png' %}" value="Change">
+
+            </form>
+
+        </td>
 
     </tr>
 

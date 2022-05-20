@@ -1,0 +1,11 @@
+.member{
+    margin: auto;
+    padding: 5%;
+    width: 100%;
+}
+
+.form-select {
+    display: inline !important; 
+    width:35% !important;
+}
+

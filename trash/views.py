@@ -1,4 +1,5 @@
 
+from multiprocessing import context
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
@@ -186,6 +187,8 @@ def member_job_status(request):
     if request.method == 'POST':
 
         global job_status
+
+
         username = request.user.username
         job_status = request.POST.get('job')
 
@@ -207,7 +210,11 @@ def member_job_status(request):
 
 def admin_permissions(request):
 
+    #collector = Collector.objects.prefetch_related('area', 'user').all()
     collector = Collector.objects.all()
+    area = Areas.objects.get(area_name = collector.area.area_name)
+    house = Houses.objects.filter(area = area)
+    print("admin_permissions houses: ",house)
     adminKey = True
     findKey = True
 
@@ -216,6 +223,7 @@ def admin_permissions(request):
         'collectors': collector,
          'adminKey': adminKey,
          'findKey': findKey,
+         'house': house,
          
 
     }
@@ -300,6 +308,22 @@ def admin_area(request):
 
         return render(request, 'adminarea.html', context)
 
+def viewarea(request):
+    adminKey = True
+
+    area = Areas.objects.all()
+    print("hi ther:", id)
+    houses = Houses.objects.all()
+    
+    print("areas are: ", area)
+    print("houses: ", houses)
+    context = {
+        'adminKey' : adminKey,
+        'houses': houses,
+        'areas': area,
+    }
+    return render(request, 'viewareas.html', context)
+
 
 def admin_search(request):
     adminKey = True
@@ -312,9 +336,16 @@ def admin_search(request):
         print('________________________________________________________')
        # print("search got: ",search)
         # print(user)
-        user = User.objects.filter(username__contains = findout)
-        # search = Collector.objects.prefetch_related('user').filter(user=user)
-        search = Collector.objects.filter(user_id__in = user)
+         # search = Collector.objects.prefetch_related('user').filter(user=user)
+        if ( Areas.objects.filter(area_name__contains = findout)):
+            area = Areas.objects.filter(area_name__contains = findout)
+            print("area: ",area)
+            search = Collector.objects.filter(area_id__in= area)
+            print("this is the area: " ,search)
+        else:
+            user = User.objects.filter(username__contains = findout)
+            search = Collector.objects.filter(user_id__in = user)
+            print ('search is here:', search)
         context = {
             'search' : search,
             'adminKey' : adminKey,

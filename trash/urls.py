@@ -18,5 +18,6 @@ urlpatterns = [
     path('admin-profile/<str:username>/', views.admin_profile, name="admin-profile"),
     path('admin-area/', views.admin_area, name="admin-area"),
     path('admin-search/', views.admin_search, name="admin-search"),
+    path('viewarea/', views.viewarea, name="viewarea"),
     
 ]

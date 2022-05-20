@@ -19,6 +19,7 @@
         <th>Username</th>
         <th>Email</th>
         <th>Area</th>
+        <th>Houses</th>
         <th>Job Status</th>
         <th>Admin_status</th>
         <th>Is.admin ?</th>
@@ -34,6 +35,13 @@
         <td>{{ collector.user.username }}</td>
         <td>{{collector.user.email}} </td>
         <td>{{ collector.area.area_name }}</td>
+        
+        <td>
+            {% for h in house %} 
+            {{h.house_name}} <br>   
+            {% endfor %}
+        </td>
+       
         <td>{{ collector.area_status }}</td>
         <td>{{ collector.is_admin }} </td>
         <td>
