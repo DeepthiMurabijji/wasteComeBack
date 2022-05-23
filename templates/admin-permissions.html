@@ -29,7 +29,8 @@
 
 
     <br>
-{% for collector in collectors %}
+
+{% for collector,houses in collector_houses.items %}
     <tr>
 
         <td>{{ collector.user.username }}</td>
@@ -37,8 +38,8 @@
         <td>{{ collector.area.area_name }}</td>
         
         <td>
-            {% for h in house %} 
-            {{h.house_name}} <br>   
+            {% for house in houses %} 
+            {{house.house_name}} <br>   
             {% endfor %}
         </td>
        

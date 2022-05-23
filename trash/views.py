@@ -1,5 +1,4 @@
-
-from multiprocessing import context
+from django.utils.functional import SimpleLazyObject
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
@@ -7,6 +6,8 @@ from django.contrib.auth.decorators import login_required
 from trash.models import *
 from django.contrib import messages 
 from django.urls import reverse
+from django.template.loader import get_template
+
 # Create your views here.
 
 
@@ -87,6 +88,7 @@ def register_save(request):
 
 registerKey = True
 
+
 def loginn(request):
 
     # registerKey = True
@@ -99,12 +101,55 @@ def loginn(request):
 
     return render(request, 'login.html', context)
 
+def login_req(request):
+    print("Here",request.method)
+    if request.method == 'POST':
 
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        try:
+            user = User.objects.get(username=username)
+            print(user)
+        except:
+
+            messages.success(request,"PLEASE ENTER CORRECT USERNAME")
+           
+            return render(request, 'login.html',{'message':'PLEASE ENTER CORRECT USERNAME'})
+
+        userme = User.objects.get(username=username)
+        print(userme.password)
+        authenUser = authenticate(request, username = username, password = password)
+        print(authenUser)
+
+        if authenUser is not None:
+
+            login(request, authenUser)
+            return redirect('login-output')
+
+    return render(request, 'login.html')
+
+@login_required(login_url='login-req')
 def login_output(request):
     global registerKey
     registerKey = True
-
-    if request.method == 'POST':
+    print(type(request.user),request.user.username,request.user.is_superuser)
+    users = User.objects.all()
+    if request.user in users:
+        collector_ = Collector.objects.get(user=request.user)
+    if request.user in users and collector_.is_admin == False:
+        user = User.objects.get(username=request.user.username)
+        collector = Collector.objects.get(user=user)
+        house = Houses.objects.filter(area=collector.area)
+        context ={
+                'adminKey': True,
+                'collector': collector,
+                'house': house,
+                }
+        return render(request, 'member-panel.html', context)
+    elif request.user in users and collector_.is_admin == True:
+        return redirect("admin-panel")
+    elif request.method == 'POST':
 
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -137,11 +182,10 @@ def login_output(request):
 
                 context ={
                     'adminKey': adminKey,
-                    'collector': collector,
                 }
                 # return render(request, 'admin-panel.html',context)
                 # print("Collector Here",type(collector),type(collector.user.username))
-                return redirect('admin-panel',collector)  
+                return redirect('admin-panel')  
             else:
                 if collector.is_real == True:
                     adminKey = True
@@ -161,17 +205,18 @@ def login_output(request):
         messages.success(request,('There was a problem login'))
         return render(request, 'login.html', {'registerKey': registerKey})
 
-def admin_panel(request, collector):
-    print("I am here at Panel",collector)
+@login_required(login_url='login-output')
+def admin_panel(request):
     adminKey = True
     context ={
         'adminKey': adminKey,
-        'collector': collector,
+        'collector': request.user.username,
     }
     return render(request, 'admin-panel.html', context)
 
-def admin_profile(request,username):
-    user = User.objects.get(username=username)
+@login_required(login_url='login-output')
+def admin_profile(request):
+    user = User.objects.get(username=request.user.username)
     profile = Collector.objects.get(user=user)
     adminKey = True
     context = {
@@ -180,22 +225,28 @@ def admin_profile(request,username):
     }
     return render(request, 'adminprofile.html', context)
 
+@login_required(login_url='login-output')
 def member_job_status(request):
     global findKey
     findKey = True
 
     if request.method == 'POST':
 
-        global job_status
-
-
         username = request.user.username
         job_status = request.POST.get('job')
 
         if job_status == "Done":
             job_status = True
-        else:
+        elif job_status == "Not Done":
             job_status = False
+        else:
+            collector = Collector.objects.get(user=request.user)
+            house = Houses.objects.filter(area=collector.area)
+            context ={
+                    'collector': collector,
+                    'house': house,
+                    }
+            return render(request, 'member-panel.html', context)
     
         user = User.objects.get(username=username)
         Collector.objects.filter(user = user).update(area_status = job_status)
@@ -207,36 +258,55 @@ def member_job_status(request):
 
     return render(request, 'thank.html', context)
 
-
+@login_required(login_url='login-output')
 def admin_permissions(request):
 
     #collector = Collector.objects.prefetch_related('area', 'user').all()
-    collector = Collector.objects.all()
-    area = Areas.objects.get(area_name = collector.area.area_name)
-    house = Houses.objects.filter(area = area)
-    print("admin_permissions houses: ",house)
+    #collector = Collector.objects.all()
+    #area = Areas.objects.get(area_name = collector.area)
+    #house = Houses.objects.filter(area = area)
+   # print("admin_permissions houses: ",house)
+    areas = Areas.objects.all()
+    collectors = Collector.objects.prefetch_related('area', 'user').all()
+    collector_houses = {}
+    for collector in collectors.iterator():
+            print(" .........entered if ............")
+            print(collector.area.area_name)
+            houses = Houses.objects.filter(area = collector.area.id)
+            collector_houses[collector] = houses
+            for house in houses.iterator():
+                print("Name:", collector.user.username)
+                print("houses: ",house.house_name)
+                print("address: ",house.house_address)
+                   
+       
+
+    print("collectors: ", collectors)
+
     adminKey = True
     findKey = True
 
     context = {
 
-        'collectors': collector,
+        'collectors': collectors,
          'adminKey': adminKey,
          'findKey': findKey,
-         'house': house,
+         'houses': houses,
+         'collector_houses' : collector_houses,
          
 
     }
 
     return render(request, 'admin-permissions.html', context)
 
-def admin_permissions_save(request, username):
+@login_required(login_url='login-output')
+def admin_permissions_save(request):
 
     if request.method == 'POST':
 
         adminChoice = request.POST.get('admin')
 
-        user = User.objects.get(username = username)
+        user = User.objects.get(username = request.user.username)
 
         print(user.username)
 
@@ -249,7 +319,8 @@ def admin_permissions_save(request, username):
 
     return redirect('admin-permissions')
 
-def collector_authentic_permissions(request, username):
+@login_required(login_url='login-output')
+def collector_authentic_permissions(request):
 
     if request.method == 'POST':
 
@@ -260,11 +331,12 @@ def collector_authentic_permissions(request, username):
         else: 
             isRealChoice = False
 
-        user = User.objects.get(username = username)
+        user = User.objects.get(username = request.user.username)
         Collector.objects.filter(user=user).update(is_real = isRealChoice)
 
     return redirect('admin-permissions')
 
+@login_required(login_url='login-output')
 def admin_area(request):
 
     adminKey = True
@@ -308,6 +380,7 @@ def admin_area(request):
 
         return render(request, 'adminarea.html', context)
 
+@login_required(login_url='login-output')
 def viewarea(request):
     adminKey = True
 
@@ -324,7 +397,7 @@ def viewarea(request):
     }
     return render(request, 'viewareas.html', context)
 
-
+@login_required(login_url='login-output')
 def admin_search(request):
     adminKey = True
     if request.method == 'POST':
