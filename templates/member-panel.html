@@ -39,6 +39,7 @@
 
             
             <form action="{% url 'memeber-job-status' %}" method="post">
+                {% csrf_token %}
 
                 <td><div class="houses">
                     {% for house in house %}
@@ -57,7 +58,7 @@
             
             <td>
                 
-                    {% csrf_token %}
+                   
                 
                     <!-- <select name="job">
                 
@@ -67,7 +68,7 @@
                     </select> -->
 
                     <select class="form-select" aria-label="Job Status" name="job" >
-                        <option selected>In Process</option>
+                        <option value = "" disabled="disabled" selected>job status </option>
                         <option value="Done">Completed</option>
                         <option value="Not Done">Not Completed</option>
                     </select>
@@ -75,6 +76,9 @@
                     <input type="submit" value="submit">
                 
                 </form>
+                {% if message %} 
+                {{message}} 
+                {% endif %}
             </td>
         </tr>
         

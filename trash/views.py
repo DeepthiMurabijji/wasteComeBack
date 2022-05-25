@@ -1,3 +1,4 @@
+from multiprocessing import context
 from django.utils.functional import SimpleLazyObject
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
@@ -12,7 +13,13 @@ from django.template.loader import get_template
 
 
 def home(request):
-    return render(request, 'home.html')
+    context={}
+    if request.user.is_authenticated:
+        context={
+            'username' : request.user.username
+        }
+     
+    return render(request, 'home.html', context)
 
 
 def register(request):
@@ -102,7 +109,7 @@ def loginn(request):
     return render(request, 'login.html', context)
 
 def login_req(request):
-    print("Here",request.method)
+    print("Here1",request.method)
     if request.method == 'POST':
 
         username = request.POST.get('username')
@@ -118,9 +125,9 @@ def login_req(request):
             return render(request, 'login.html',{'message':'PLEASE ENTER CORRECT USERNAME'})
 
         userme = User.objects.get(username=username)
-        print(userme.password)
+        #print(userme.password)
         authenUser = authenticate(request, username = username, password = password)
-        print(authenUser)
+        #print(authenUser)
 
         if authenUser is not None:
 
@@ -133,18 +140,22 @@ def login_req(request):
 def login_output(request):
     global registerKey
     registerKey = True
-    print(type(request.user),request.user.username,request.user.is_superuser)
+    print("1",type(request.user),request.user.username,request.user.is_superuser)
     users = User.objects.all()
     if request.user in users:
         collector_ = Collector.objects.get(user=request.user)
-    if request.user in users and collector_.is_admin == False:
+        print ("what?" ,collector_)
+    if request.user in users and collector_.is_real == True:
+        registerKey = False
         user = User.objects.get(username=request.user.username)
         collector = Collector.objects.get(user=user)
-        house = Houses.objects.filter(area=collector.area)
+        house = Houses.objects.filter(area=collector.area) 
         context ={
                 'adminKey': True,
                 'collector': collector,
                 'house': house,
+                'user':user,
+                'registerKey':registerKey,
                 }
         return render(request, 'member-panel.html', context)
     elif request.user in users and collector_.is_admin == True:
@@ -239,12 +250,14 @@ def member_job_status(request):
             job_status = True
         elif job_status == "Not Done":
             job_status = False
-        else:
+        
+            
             collector = Collector.objects.get(user=request.user)
             house = Houses.objects.filter(area=collector.area)
             context ={
                     'collector': collector,
                     'house': house,
+                    'adminKey': True,
                     }
             return render(request, 'member-panel.html', context)
     
@@ -300,13 +313,13 @@ def admin_permissions(request):
     return render(request, 'admin-permissions.html', context)
 
 @login_required(login_url='login-output')
-def admin_permissions_save(request):
+def admin_permissions_save(request, username):
 
     if request.method == 'POST':
 
         adminChoice = request.POST.get('admin')
 
-        user = User.objects.get(username = request.user.username)
+        user = User.objects.get(username = username)
 
         print(user.username)
 
@@ -320,7 +333,7 @@ def admin_permissions_save(request):
     return redirect('admin-permissions')
 
 @login_required(login_url='login-output')
-def collector_authentic_permissions(request):
+def collector_authentic_permissions(request, username):
 
     if request.method == 'POST':
 
@@ -331,7 +344,7 @@ def collector_authentic_permissions(request):
         else: 
             isRealChoice = False
 
-        user = User.objects.get(username = request.user.username)
+        user = User.objects.get(username = username)
         Collector.objects.filter(user=user).update(is_real = isRealChoice)
 
     return redirect('admin-permissions')
@@ -410,18 +423,28 @@ def admin_search(request):
        # print("search got: ",search)
         # print(user)
          # search = Collector.objects.prefetch_related('user').filter(user=user)
-        if ( Areas.objects.filter(area_name__contains = findout)):
-            area = Areas.objects.filter(area_name__contains = findout)
-            print("area: ",area)
-            search = Collector.objects.filter(area_id__in= area)
-            print("this is the area: " ,search)
-        else:
-            user = User.objects.filter(username__contains = findout)
-            search = Collector.objects.filter(user_id__in = user)
+        # if (User.objects.filter(username__contains = findout)):
+            # user = User.objects.filter(username__contains = findout)
+            # search = Collector.objects.filter(user_id__in = user)
+        # else:
+        user = User.objects.filter(username__contains = findout)
+        search = list(Collector.objects.filter(user_id__in = user))
+        area = Areas.objects.filter(area_name__contains = findout)
+        print("area: ",area)
+        search += set(list(Collector.objects.filter(area_id__in= area)))
+        search = list(search)
+        print("this is the area: " ,search)
+
+        collector_houses = {}
+        for collector in search:
+            houses =Houses.objects.filter(area_id = collector.area_id )
+            collector_houses[collector] = houses
+            
             print ('search is here:', search)
         context = {
             'search' : search,
             'adminKey' : adminKey,
+            'collector_houses': collector_houses,
         }
 
         return render(request, 'admin-search.html',context)
@@ -430,4 +453,5 @@ def admin_search(request):
 
 def logoutt(request):
     logout(request)
-    return render(request,'home.html')
+    #return render(request,'home.html')
+    return redirect('home')

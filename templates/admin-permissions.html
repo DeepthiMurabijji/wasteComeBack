@@ -21,10 +21,10 @@
         <th>Area</th>
         <th>Houses</th>
         <th>Job Status</th>
-        <th>Admin_status</th>
-        <th>Is.admin ?</th>
-        <th>Authenticate_status</th>
-        <th>Authenciate</th>
+        <th>Admin permit status</th>
+        <th>Admin Permit</th>
+        <th>collector permit status</th>
+        <th>Collector Permit</th>
     </tr>
 
 
@@ -43,8 +43,21 @@
             {% endfor %}
         </td>
        
-        <td>{{ collector.area_status }}</td>
-        <td>{{ collector.is_admin }} </td>
+        <td>
+            {% if collector.area_status == True %}
+              Completed
+            {% else %}
+               Not Completed
+            {% endif %}
+             
+        </td>
+        <td>
+            {% if collector.is_admin == True %}
+                Permitted
+             {%  else  %} 
+                Not Permitted
+            {% endif %}
+        </td>
         <td>
             <form action="{% url 'admin-permissions-save' username=collector.user.username %}" method="post">
 
@@ -56,15 +69,21 @@
                 </select> -->
 
                 <input type="radio" id="true" name="admin" value="True">
-                <label for="true">TRUE</label><br>
+                <label for="true">Permit</label><br>
                 <input type="radio" id="false" name="admin" value="False">
-                <label for="false">FALSE</label>
-                <input class='update' type='image' src="{% static 'icons8-save-50.png' %}" value="Change">
+                <label for="false">Don't Permit</label>
+                <input class='update' title='update' type='image' src="{% static 'icons8-save-50.png' %}" value="Change">
             </form>
 
         </td>
 
-        <td>{{ collector.is_real }}</td>
+        <td>
+            {% if collector.is_real == True %}
+                Allowed
+             {%  else  %}
+                Not Allowed
+            {% endif %}
+        </td>
         <td>
             <form action="{% url 'collector-authentic-permissions' username=collector.user.username %}" method="post">
 
@@ -77,10 +96,10 @@
 
 
                 <input type="radio" id="true" name="real" value="True">
-                <label for="true">TRUE</label><br>
+                <label for="true">Allow</label><br>
                 <input type="radio" id="false" name="real" value="False">
-                <label for="false">FALSE</label>
-                <input class='update' type='image' src="{% static 'icons8-save-50.png' %}" value="Change">
+                <label for="false">Don't Allow</label>
+                <input class='update' title="update" type='image' src="{% static 'icons8-save-50.png' %}" value="Change">
 
             </form>
 

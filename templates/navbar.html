@@ -57,26 +57,31 @@
 
 
            
-{% if registerKey %}
+  {% if registerKey %}
 
-<li class="nav-item">
-    <a class="nav-link" href="{% url 'register' %}">Register</a>
-  </li>
-  {% else %}
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'register' %}">Register</a>
+    </li>
+    {% else %}
 
-  {% if adminKey %}
-<li class="nav-item">
-  <a class="nav-link" href="{% url 'logoutt' %}"><i class='fas fa-sign-out-alt'></i> Logout</a>
-</li>
+      {% if adminKey %}
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'logoutt' %}"><i class='fas fa-sign-out-alt'></i> Logout</a>
+        </li>
 
-{% else %}
-<li class="nav-item">
-  <a class="nav-link" href="{% url 'login-output' %}"><i class='fas fa-sign-in-alt'></i> Login</a>
-</li>
-{% endif %}
+      {% else %}
+        {% if username %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'login-output' %}"><i class='fas fa-user'> </i> {{username}}</a>
+          </li>
+        {% else %}
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'login-req' %}"><i class='fas fa-sign-in-alt'></i> Login</a>
+        </li>
+        {% endif %}
 
-{% endif %}
-
+      {% endif %}
+  {% endif %}
 
 
 
@@ -88,7 +93,7 @@
             <button class="btn btn-outline-dark my-2 my-sm-0" type="submit">Search</button>
           </form>
           {% endif %}
-          <!-- <button class="btn btn-secondary  my-2 my-sm-0" onclick="history.back()" style="float: right ;">Go Back</button> -->
+          <button  class="btn btn-secondary  my-2 my-sm-0" onclick="history.back()" >Go Back</button>
         </div>
     </nav>
 
