@@ -145,7 +145,7 @@ def login_output(request):
     if request.user in users:
         collector_ = Collector.objects.get(user=request.user)
         print ("what?" ,collector_)
-    if request.user in users and collector_.is_real == True:
+    if request.user in users and collector_.is_admin == False:
         registerKey = False
         user = User.objects.get(username=request.user.username)
         collector = Collector.objects.get(user=user)
