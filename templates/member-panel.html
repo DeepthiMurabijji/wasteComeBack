@@ -43,9 +43,8 @@
 
                 <td><div class="houses">
                     {% for house in house %}
-                    
                     <div class="form-check">
-                        <input class="form-check-input" name = "houses" type="checkbox" value="{{house}}" id="flexCheckDefault" required>
+                        <input class="form-check-input" name = "houses" type="checkbox" value={{forloop.counter}} id="flexCheckDefault" required>
                         <label class="form-check-label" for="flexCheckDefault">
                             {{house}}
                         </label>
@@ -69,20 +68,23 @@
 
                     <select class="form-select" aria-label="Job Status" name="job" >
                         <option value = "" disabled="disabled" selected>job status </option>
-                        <option value="Done">Completed</option>
-                        <option value="Not Done">Not Completed</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Not Completed">Not Completed</option>
                     </select>
                 
                     <input type="submit" value="submit">
                 
                 </form>
-                {% if message %} 
+                <!-- {% if message %} 
                 {{message}} 
-                {% endif %}
+                {% endif %} -->
             </td>
         </tr>
-        
+               
     </table>
+    {% if error %} 
+        {{error}}
+    {% endif %} 
 </div>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
 

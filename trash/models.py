@@ -27,6 +27,7 @@ class Houses(models.Model):
     area = models.ForeignKey(Areas, on_delete = models.CASCADE)
     house_name = models.CharField(max_length=20)
     house_address = models.CharField(max_length=50, blank=True)
+    is_completed = models.CharField(max_length=50, default='Not Completed')
 
 
     def __str__(self) -> str:

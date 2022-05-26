@@ -1,4 +1,4 @@
-from multiprocessing import context
+from django.db.models import Q
 from django.utils.functional import SimpleLazyObject
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
@@ -11,12 +11,27 @@ from django.template.loader import get_template
 
 # Create your views here.
 
+global registerKey
+registerKey = True
+
+global adminKey
+adminKey = True
 
 def home(request):
     context={}
+    registerKey = False
+
     if request.user.is_authenticated:
+        # print("Active status here",request.user.is_active)
+        username = request.user.username  
         context={
-            'username' : request.user.username
+        'username': username,
+        }
+    else:
+        registerKey = False
+    
+        context={
+            'registerKey':registerKey,
         }
      
     return render(request, 'home.html', context)
@@ -58,7 +73,7 @@ def register_save(request):
                 # user = User.objects.create_user(username = username,email = email)
 
                 if (User.objects.filter(email = email).exists()):
-                    print("email already exists")
+                    # print("email already exists")
                     areas = Areas.objects.all()
 
                     context = {
@@ -108,113 +123,203 @@ def loginn(request):
 
     return render(request, 'login.html', context)
 
-def login_req(request):
-    print("Here1",request.method)
-    if request.method == 'POST':
+# def login_req(request):
+#     print("Here1",request.method)
+#     if request.method == 'POST':
 
+#         username = request.POST.get('username')
+#         password = request.POST.get('password')
+
+#         try:
+#             user = User.objects.get(username=username)
+#             print(user)
+#         except:
+
+#             messages.success(request,"PLEASE ENTER CORRECT USERNAME")
+           
+#             return render(request, 'login.html',{'message':'PLEASE ENTER CORRECT USERNAME'})
+
+#         userme = User.objects.get(username=username)
+#         #print(userme.password)
+#         authenUser = authenticate(request, username = username, password = password)
+#         #print(authenUser)
+
+#         if authenUser is not None:
+
+#             login(request, authenUser)
+#             return redirect('login-output')
+
+#     return render(request, 'login.html')
+
+def login_req(request):
+    if request.method == 'POST':
+    #    print ("session 2 ")
         username = request.POST.get('username')
         password = request.POST.get('password')
-
         try:
-            user = User.objects.get(username=username)
-            print(user)
+            user = User.objects.get(username = username)
         except:
-
-            messages.success(request,"PLEASE ENTER CORRECT USERNAME")
-           
-            return render(request, 'login.html',{'message':'PLEASE ENTER CORRECT USERNAME'})
-
-        userme = User.objects.get(username=username)
-        #print(userme.password)
-        authenUser = authenticate(request, username = username, password = password)
-        #print(authenUser)
-
+            return render(request,'login.html',{'message':'PLEASE ENTER CORRECT USERNAME'})
+        collector = Collector.objects.get(user = user)
+        houses = Houses.objects.filter(area = collector.area)
+        authenUser = authenticate(username = username, password = password)
         if authenUser is not None:
+            if collector.is_real == True:
+                login(request, authenUser)
 
-            login(request, authenUser)
-            return redirect('login-output')
+            if collector.is_admin == True:
+                context = {
+                    'adminKey': True,
+                    'collector': collector,
+                    'house': houses,
+                    'user':user,
 
-    return render(request, 'login.html')
+                }
+                return render(request, 'admin-panel.html',context)
+            elif collector.is_real == True:
+                context = {
+                    'adminKey': True,
+                    'collector': collector,
+                    'house': houses,
+                    'user':user,
+
+                }
+                return render(request, 'member-panel.html', context)
+            else:
+                context = {
+                    'registerKey':registerKey,
+                    'message':'YOUR ACCOUNT IS NOT ACTIVATED !'
+                }
+                return render(request,'login.html', context)
+        else:
+            context = {
+                'registerKey':registerKey,
+                'message':'PLEASE LOGIN WITH A CORRECT PASSWORD',
+            }
+            return render(request,'login.html',context)
+    else:
+        context = {
+            'registerKey':registerKey,
+            # 'message': 'There was a problem login'
+        }
+        return render(request, 'login.html', context)
+
 
 @login_required(login_url='login-req')
 def login_output(request):
-    global registerKey
-    registerKey = True
-    print("1",type(request.user),request.user.username,request.user.is_superuser)
-    users = User.objects.all()
-    if request.user in users:
-        collector_ = Collector.objects.get(user=request.user)
-        print ("what?" ,collector_)
-    if request.user in users and collector_.is_admin == False:
-        registerKey = False
-        user = User.objects.get(username=request.user.username)
-        collector = Collector.objects.get(user=user)
-        house = Houses.objects.filter(area=collector.area) 
-        context ={
+    user = User.objects.all()
+    if request.user in user:
+        # print('session 1')
+        collector = Collector.objects.get(user = request.user)
+        # print("hi this is a user:", collector.is_real)
+        houses = Houses.objects.filter(area = collector.area)
+        if collector.is_admin == True:
+            # print('this is a admin ')
+            context ={
                 'adminKey': True,
                 'collector': collector,
-                'house': house,
+                'house': houses,
                 'user':user,
-                'registerKey':registerKey,
-                }
-        return render(request, 'member-panel.html', context)
-    elif request.user in users and collector_.is_admin == True:
-        return redirect("admin-panel")
-    elif request.method == 'POST':
-
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-
-        try:
-            user = User.objects.get(username=username)
-            print(user)
-        except:
-
-            messages.success(request,"PLEASE ENTER CORRECT USERNAME")
-           
-            return render(request, 'login.html',{'message':'PLEASE ENTER CORRECT USERNAME'})
-
-        collector = Collector.objects.get(user=user)
-        house = Houses.objects.filter(area=collector.area)
-        print("here is the house",house)
-
-
-        authenUser = authenticate(username = username, password = password)
-        print(authenUser)
-
-        if authenUser is not None:
-
-            login(request, authenUser)
-            # return HttpResponse("Correcty")
-           
-
-            if collector.is_admin == True:
-                adminKey = True
-
-                context ={
-                    'adminKey': adminKey,
-                }
-                # return render(request, 'admin-panel.html',context)
-                # print("Collector Here",type(collector),type(collector.user.username))
-                return redirect('admin-panel')  
-            else:
-                if collector.is_real == True:
-                    adminKey = True
-                    context ={
-                         'adminKey': adminKey,
-                         'collector': collector,
-                         'house': house,
-                         }
-                    return render(request, 'member-panel.html', context)
-                else:
-                    return render(request, 'login.html',{'message':'YOUR ACCOUNT IS NOT ACTIVATED !'})
-        else: 
-            messages.success(request,("There was a problem login "))
-            return render(request, 'login.html',{'message':'PLEASE LOGIN WITH A CORRECT PASSWORD'})
-    
+            }
+            return render(request,'admin-panel.html', context)
+        elif collector.is_real == True:
+            # print('this is collector')
+            context = {
+                'adminKey': True,
+                'collector': collector,
+                'house': houses,
+                'user':user,
+            }
+            return render(request, 'member-panel.html', context)
+        else:
+            # print("not authenticated")
+            context = {
+                        'registerKey':registerKey,
+                        'message':'YOUR ACCOUNT IS NOT ACTIVATED !'
+                    }
+            
+            return redirect('login-req')
     else:
-        messages.success(request,('There was a problem login'))
-        return render(request, 'login.html', {'registerKey': registerKey})
+        pass 
+
+# def login_output(request):
+#     global registerKey
+#     registerKey = True
+#     print("1",type(request.user),request.user.username,request.user.is_superuser)
+#     users = User.objects.all()
+#     if request.user in users:
+#         collector_ = Collector.objects.get(user=request.user)
+#         print ("what?" ,collector_)
+#     if request.user in users and collector_.is_admin == False:
+#         registerKey = False
+#         user = User.objects.get(username=request.user.username)
+#         collector = Collector.objects.get(user=user)
+#         house = Houses.objects.filter(area=collector.area) 
+#         context ={
+#                 'adminKey': True,
+#                 'collector': collector,
+#                 'house': house,
+#                 'user':user,
+#                 'registerKey':registerKey,
+#                 }
+#         return render(request, 'member-panel.html', context)
+#     elif request.user in users and collector_.is_admin == True:
+#         return redirect("admin-panel")
+#     elif request.method == 'POST':
+
+#         username = request.POST.get('username')
+#         password = request.POST.get('password')
+
+#         try:
+#             user = User.objects.get(username=username)
+#             print(user)
+#         except:
+
+#             messages.success(request,"PLEASE ENTER CORRECT USERNAME")
+           
+#             return render(request, 'login.html',{'message':'PLEASE ENTER CORRECT USERNAME'})
+
+#         collector = Collector.objects.get(user=user)
+#         house = Houses.objects.filter(area=collector.area)
+#         print("here is the house",house)
+
+
+#         authenUser = authenticate(username = username, password = password)
+#         print(authenUser)
+
+#         if authenUser is not None:
+
+#             login(request, authenUser)
+#             # return HttpResponse("Correcty")
+           
+
+#             if collector.is_admin == True:
+#                 adminKey = True
+
+#                 context ={
+#                     'adminKey': adminKey,
+#                 }
+#                 # return render(request, 'admin-panel.html',context)
+#                 # print("Collector Here",type(collector),type(collector.user.username))
+#                 return redirect('admin-panel')  
+#             else:
+#                 if collector.is_real == True:
+#                     adminKey = True
+#                     context ={
+#                          'adminKey': adminKey,
+#                          'collector': collector,
+#                          'house': house,
+#                          }
+#                     return render(request, 'member-panel.html', context)
+#                 else:
+#                     return render(request, 'login.html',{'message':'YOUR ACCOUNT IS NOT ACTIVATED !'})
+#         else: 
+#             messages.success(request,("There was a problem login "))
+#             return render(request, 'login.html',{'message':'PLEASE LOGIN WITH A CORRECT PASSWORD'})
+    
+#     else:
+#         messages.success(request,('There was a problem login'))
+#         return render(request, 'login.html', {'registerKey': registerKey})
 
 @login_required(login_url='login-output')
 def admin_panel(request):
@@ -245,19 +350,41 @@ def member_job_status(request):
 
         username = request.user.username
         job_status = request.POST.get('job')
-
-        if job_status == "Done":
-            job_status = True
-        elif job_status == "Not Done":
-            job_status = False
-        
-            
+        houses_chk = Houses.objects.all()
+        # for i in houses_chk:
+        #     print(i.is_completed,type(i.is_completed))
+        #     print("Status changed to false")
+        if job_status == "Completed":
+            houses_checked = request.POST.getlist('houses')
             collector = Collector.objects.get(user=request.user)
-            house = Houses.objects.filter(area=collector.area)
+            houses_chk = Houses.objects.filter(Q(area=collector.area), Q(is_completed='Not Completed'))
+            print(houses_checked,houses_chk,collector)
+            for i in range(len(houses_chk)):
+                if str(i+1) in houses_checked:
+                    houses_chk[i].is_completed = job_status
+                    houses_chk[i].save()
+                    print("Status of",houses_chk[i].house_name,"is Changed to True")
+            job_status = True
+            house = Houses.objects.filter(Q(area=collector.area), Q(is_completed='Not Completed'))
             context ={
                     'collector': collector,
                     'house': house,
                     'adminKey': True,
+                    }
+            return render(request, 'member-panel.html', context)
+        elif job_status == "Not Completed":
+            houses_checked = request.POST.getlist('houses')
+            job_status = False
+        else:
+            error = 'please select a valid job status'
+            
+            collector = Collector.objects.get(user=request.user)
+            house = Houses.objects.filter(Q(area=collector.area), Q(is_completed='Not Completed'))
+            context ={
+                    'collector': collector,
+                    'house': house,
+                    'adminKey': True,
+                    'error': error,
                     }
             return render(request, 'member-panel.html', context)
     
@@ -283,18 +410,19 @@ def admin_permissions(request):
     collectors = Collector.objects.prefetch_related('area', 'user').all()
     collector_houses = {}
     for collector in collectors.iterator():
-            print(" .........entered if ............")
-            print(collector.area.area_name)
+            # print(" .........entered if ............")
+            # print(collector.area.area_name)
             houses = Houses.objects.filter(area = collector.area.id)
             collector_houses[collector] = houses
             for house in houses.iterator():
-                print("Name:", collector.user.username)
-                print("houses: ",house.house_name)
-                print("address: ",house.house_address)
+                pass
+                # print("Name:", collector.user.username)
+                # print("houses: ",house.house_name)
+                # print("address: ",house.house_address)
                    
        
 
-    print("collectors: ", collectors)
+    # print("collectors: ", collectors)
 
     adminKey = True
     findKey = True
@@ -321,7 +449,7 @@ def admin_permissions_save(request, username):
 
         user = User.objects.get(username = username)
 
-        print(user.username)
+        # print(user.username)
 
         if adminChoice == "True":
             adminChoice = True
@@ -363,18 +491,18 @@ def admin_area(request):
         house = Houses()
 
         if (Areas.objects.filter(area_name=area_name).exists()):
-            print ('Areas already exists')
+            # print ('Areas already exists')
             house.area = Areas.objects.get(area_name=area_name)
             house.house_name = house_name
             house.house_address = address
             house.save()
         else:
-            print("areas not exists")
+            # print("areas not exists")
             area = Areas()
             area.area_name = area_name
             area.save()
             # areas = Areas.objects.get(area_name = request.POST.get('area'))  
-            print('Area is added now !')
+            # print('Area is added now !')
             house.area = area
             house.house_name = house_name
             house.house_address = address
@@ -398,11 +526,11 @@ def viewarea(request):
     adminKey = True
 
     area = Areas.objects.all()
-    print("hi ther:", id)
+    # print("hi ther:", id)
     houses = Houses.objects.all()
     
-    print("areas are: ", area)
-    print("houses: ", houses)
+    # print("areas are: ", area)
+    # print("houses: ", houses)
     context = {
         'adminKey' : adminKey,
         'houses': houses,
@@ -430,17 +558,17 @@ def admin_search(request):
         user = User.objects.filter(username__contains = findout)
         search = list(Collector.objects.filter(user_id__in = user))
         area = Areas.objects.filter(area_name__contains = findout)
-        print("area: ",area)
+        # print("area: ",area)
         search += set(list(Collector.objects.filter(area_id__in= area)))
         search = list(search)
-        print("this is the area: " ,search)
+        # print("this is the area: " ,search)
 
         collector_houses = {}
         for collector in search:
             houses =Houses.objects.filter(area_id = collector.area_id )
             collector_houses[collector] = houses
             
-            print ('search is here:', search)
+            # print ('search is here:', search)
         context = {
             'search' : search,
             'adminKey' : adminKey,
@@ -454,4 +582,4 @@ def admin_search(request):
 def logoutt(request):
     logout(request)
     #return render(request,'home.html')
-    return redirect('home')
+    return redirect('/')
