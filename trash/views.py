@@ -1,3 +1,5 @@
+from datetime import datetime
+from email import header
 from django.db.models import Q
 from django.utils.functional import SimpleLazyObject
 from django.http import HttpResponse
@@ -8,6 +10,8 @@ from trash.models import *
 from django.contrib import messages 
 from django.urls import reverse
 from django.template.loader import get_template
+import csv
+from fileinput import filename
 
 # Create your views here.
 
@@ -44,6 +48,16 @@ def register(request):
 
     return render(request, 'register.html', context)
 
+data = [['Garbage Collector','Houses Cleaned','Date and Time']]
+
+def create_csv_file(request):
+    global data
+    response =HttpResponse(content_type='text/csv')
+    write = csv.writer(response)
+    for i in data:
+        write.writerow(i)
+    response['Content-Disposition'] ='attachment; filename= "work.csv"'
+    return response
 
 def register_save(request):
 
@@ -180,7 +194,7 @@ def login_req(request):
                 context = {
                     'adminKey': True,
                     'collector': collector,
-                    'house': houses,
+                    'houses': houses,
                     'user':user,
 
                 }
@@ -227,7 +241,7 @@ def login_output(request):
             context = {
                 'adminKey': True,
                 'collector': collector,
-                'house': houses,
+                'houses': houses,
                 'user':user,
             }
             return render(request, 'member-panel.html', context)
@@ -341,6 +355,20 @@ def admin_profile(request):
     }
     return render(request, 'adminprofile.html', context)
 
+def reset(request):
+    houses_chk = Houses.objects.all()
+    collectors =Collector.objects.all()
+    for i in collectors:
+        i.area_status = False
+        i.save()
+    for i in houses_chk:
+        print(i.is_completed,type(i.is_completed))
+        i.is_completed = 'Not Completed'
+        i.collector = None
+        i.save()
+        print("Status changed to false")
+    return redirect('viewarea')
+
 @login_required(login_url='login-output')
 def member_job_status(request):
     global findKey
@@ -349,54 +377,46 @@ def member_job_status(request):
     if request.method == 'POST':
 
         username = request.user.username
-        job_status = request.POST.get('job')
-        houses_chk = Houses.objects.all()
-        # for i in houses_chk:
-        #     print(i.is_completed,type(i.is_completed))
-        #     print("Status changed to false")
-        if job_status == "Completed":
-            houses_checked = request.POST.getlist('houses')
-            collector = Collector.objects.get(user=request.user)
-            houses_chk = Houses.objects.filter(Q(area=collector.area), Q(is_completed='Not Completed'))
-            print(houses_checked,houses_chk,collector)
-            for i in range(len(houses_chk)):
-                if str(i+1) in houses_checked:
-                    houses_chk[i].is_completed = job_status
-                    houses_chk[i].save()
-                    print("Status of",houses_chk[i].house_name,"is Changed to True")
-            job_status = True
-            house = Houses.objects.filter(Q(area=collector.area), Q(is_completed='Not Completed'))
-            context ={
-                    'collector': collector,
-                    'house': house,
-                    'adminKey': True,
-                    }
-            return render(request, 'member-panel.html', context)
-        elif job_status == "Not Completed":
-            houses_checked = request.POST.getlist('houses')
-            job_status = False
-        else:
-            error = 'please select a valid job status'
+
+        houses_checked = request.POST.getlist('houses')
+        collector = Collector.objects.get(user=request.user)
+        houses = Houses.objects.filter(area=collector.area)
+        print("list of checked houses: ",houses_checked,"Q:->",houses,"Name:",collector,"time :",datetime.now(),len(houses))
+        for i in range(len(houses)):
+            print("Inside for loop",i+1,houses_checked)
+            if str(i+1) in houses_checked:
+                print("Inside if block")
+                houses[i].is_completed = "Completed"
+                houses[i].collector = collector
+                houses[i].save()
+                print(houses[i].is_completed, houses[i].collector, houses[i])
+                data.append([collector,houses[i].house_name,datetime.now()])
+            print("After for loop",i)
+                    
+                   
             
-            collector = Collector.objects.get(user=request.user)
-            house = Houses.objects.filter(Q(area=collector.area), Q(is_completed='Not Completed'))
-            context ={
-                    'collector': collector,
-                    'house': house,
-                    'adminKey': True,
-                    'error': error,
-                    }
-            return render(request, 'member-panel.html', context)
-    
-        user = User.objects.get(username=username)
-        Collector.objects.filter(user = user).update(area_status = job_status)
-        context = {
-                'job_status': job_status,
-                'findKey': findKey,
-            }
 
-
-    return render(request, 'thank.html', context)
+            # for i in range(len(houses_chk)): 
+            #     if str(i+1) in houses_checked:
+            #         houses_chk[i].is_completed = job_status
+            #         houses_chk[i].save()
+            #         print("Status of",houses_chk[i].house_name,"is Changed to True")
+        context ={
+                'collector': collector,
+                'houses': houses,
+                'adminKey': True,
+                }
+        return render(request, 'member-panel.html', context)
+    else:
+        
+        collector = Collector.objects.get(user=request.user)
+        houses = Houses.objects.filter(area=collector.area)
+        context ={
+                'collector': collector,
+                'houses': houses,
+                'adminKey': True,
+                }
+        return render(request, 'member-panel.html', context)
 
 @login_required(login_url='login-output')
 def admin_permissions(request):

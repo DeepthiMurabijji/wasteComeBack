@@ -42,15 +42,24 @@
                 {% csrf_token %}
 
                 <td><div class="houses">
-                    {% for house in house %}
+                    {% for house in houses %}
                     <div class="form-check">
+                        {% if house.is_completed == 'Completed' %}
+                        <input class="form-check-input" name = "houses" type="checkbox" value={{forloop.counter}} id="flexCheckDefault" required  disabled checked>
+                        <label class="form-check-label" for="flexCheckDefault">
+                            {{house.house_name}}
+                        </label>
+                        {% else %}
                         <input class="form-check-input" name = "houses" type="checkbox" value={{forloop.counter}} id="flexCheckDefault" required>
                         <label class="form-check-label" for="flexCheckDefault">
-                            {{house}}
+                            {{house.house_name}}
                         </label>
+                        {% endif %}
                       </div>
                     {% endfor %}
                 </div>
+
+                
                 </td>
           
             
@@ -66,13 +75,13 @@
                 
                     </select> -->
 
-                    <select class="form-select" aria-label="Job Status" name="job" >
+                    <!-- <select class="form-select" aria-label="Job Status" name="job" >
                         <option value = "" disabled="disabled" selected>job status </option>
                         <option value="Completed">Completed</option>
                         <option value="Not Completed">Not Completed</option>
-                    </select>
+                    </select> -->
                 
-                    <input type="submit" value="submit">
+                    <input type="submit" name = "job" value="Completed">
                 
                 </form>
                 <!-- {% if message %} 
@@ -82,6 +91,18 @@
         </tr>
                
     </table>
+
+    
+    {% for i in houses_checked %}
+        Here Started
+        {{ forlop.counter }}
+        {{ i }}
+        For loop Ended
+    {% endfor %}
+
+   
+
+
     {% if error %} 
         {{error}}
     {% endif %} 

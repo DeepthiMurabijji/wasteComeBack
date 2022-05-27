@@ -22,16 +22,7 @@ class Areas(models.Model):
         return houses.count()+1
 
 
-class Houses(models.Model):
 
-    area = models.ForeignKey(Areas, on_delete = models.CASCADE)
-    house_name = models.CharField(max_length=20)
-    house_address = models.CharField(max_length=50, blank=True)
-    is_completed = models.CharField(max_length=50, default='Not Completed')
-
-
-    def __str__(self) -> str:
-        return self.house_name
 
 class Collector(models.Model):
     
@@ -44,6 +35,17 @@ class Collector(models.Model):
     def __str__(self) -> str:
         return self.user.username
 
+class Houses(models.Model):
+
+    area = models.ForeignKey(Areas, on_delete = models.CASCADE)
+    house_name = models.CharField(max_length=20)
+    house_address = models.CharField(max_length=50, blank=True)
+    is_completed = models.CharField(max_length=50, default='Not Completed')
+    collector = models.ForeignKey(Collector, on_delete=models.DO_NOTHING, default=None, null=True,blank=True)
+
+
+    def __str__(self) -> str:
+        return self.house_name
 
 
 # Here we connect Collector with User using ONeToOneField

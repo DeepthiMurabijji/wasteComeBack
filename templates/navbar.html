@@ -65,8 +65,14 @@
     {% else %}
 
       {% if adminKey %}
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'csvfile' %}"><i class='fas fa-sign-in-alt'></i> csvfile</a>
+      </li>
         <li class="nav-item">
           <a class="nav-link" href="{% url 'logoutt' %}"><i class='fas fa-sign-out-alt'></i> Logout</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'reset' %}"> Reset</a>
         </li>
 
       {% else %}
@@ -75,6 +81,7 @@
             <a class="nav-link" href="{% url 'login-output' %}"><i class='fas fa-user'> </i> {{username}}</a>
           </li>
         {% else %}
+        
         <li class="nav-item">
           <a class="nav-link" href="{% url 'login-output' %}"><i class='fas fa-sign-in-alt'></i> Login</a>
         </li>

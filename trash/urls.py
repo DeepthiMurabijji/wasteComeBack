@@ -20,5 +20,7 @@ urlpatterns = [
     path('admin-area/', views.admin_area, name="admin-area"),
     path('admin-search/', views.admin_search, name="admin-search"),
     path('viewarea/', views.viewarea, name="viewarea"),
+    path('csvfile/',views.create_csv_file, name="csvfile"),
+    path('reset/',views.reset, name="reset"),
     
 ]

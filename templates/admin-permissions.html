@@ -20,7 +20,7 @@
         <th>Email</th>
         <th>Area</th>
         <th>Houses</th>
-        <th>Job Status</th>
+        <th>Houses Completed</th>
         <th>Admin permit status</th>
         <th>Admin Permit</th>
         <th>collector permit status</th>
@@ -44,11 +44,17 @@
         </td>
        
         <td>
-            {% if collector.area_status == True %}
+
+            {% for house in houses %}
+            {% if house.collector == collector %}
+                {{house.house_name}} <br> 
+            {% endif %}  
+            {% endfor %}
+            <!-- {% if collector.area_status == True %}
               Completed
             {% else %}
                Not Completed
-            {% endif %}
+            {% endif %} -->
              
         </td>
         <td>

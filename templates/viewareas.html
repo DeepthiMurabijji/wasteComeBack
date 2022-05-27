@@ -15,6 +15,7 @@
             <th>Area Name</th>
             <th>House Name</th>
             <th>Address</th>
+            <th>Garbage collection status</th>
         </tr>
         {% for area in areas %} 
         <tr>
@@ -28,6 +29,7 @@
             <tr>
             <td>{{house.house_name}}</td>
             <td>{{house.house_address}}</td>
+            <td>{{house.is_completed}}</td>
         </tr>
         {% endif %}
         {% endfor %}        
