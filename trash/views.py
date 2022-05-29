@@ -21,6 +21,9 @@ registerKey = True
 global adminKey
 adminKey = True
 
+global memberkey 
+memeberkey = True
+
 def home(request):
     context={}
     registerKey = False
@@ -193,6 +196,7 @@ def login_req(request):
             elif collector.is_real == True:
                 context = {
                     'adminKey': True,
+                    'memberkey': True,
                     'collector': collector,
                     'houses': houses,
                     'user':user,
@@ -240,6 +244,7 @@ def login_output(request):
             # print('this is collector')
             context = {
                 'adminKey': True,
+                'memberkey': True,
                 'collector': collector,
                 'houses': houses,
                 'user':user,
