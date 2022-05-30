@@ -415,6 +415,7 @@ def member_job_status(request):
                 'collector': collector,
                 'houses': houses,
                 'adminKey': True,
+                'memberkey': True,
                 }
         return render(request, 'member-panel.html', context)
     else:
