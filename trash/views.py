@@ -192,7 +192,8 @@ def login_req(request):
                     'user':user,
 
                 }
-                return render(request, 'admin-panel.html',context)
+                # return render(request, 'admin-panel.html',context)
+                return redirect('admin-panel')
             elif collector.is_real == True:
                 context = {
                     'adminKey': True,
@@ -342,10 +343,14 @@ def login_output(request):
 
 @login_required(login_url='login-output')
 def admin_panel(request):
-    adminKey = True
+    collector = Collector.objects.get(user = request.user)
+    houses = Houses.objects.filter(area = collector.area)
     context ={
-        'adminKey': adminKey,
         'collector': request.user.username,
+        'adminKey': True,
+        'collector': collector,
+        'house': houses,
+        'user': request.user,
     }
     return render(request, 'admin-panel.html', context)
 

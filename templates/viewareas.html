@@ -9,14 +9,14 @@
     <link rel="stylesheet"  type="text/css" href="{% static 'css/viewareas.css' %}" />
 
 <div class="area">
-    <table >
-        <tr>
+    <table class="table">
+        <thead class="table-dark" >
             <th>Area ID</th>
             <th>Area Name</th>
             <th>House Name</th>
             <th>Address</th>
             <th>Garbage collection status</th>
-        </tr>
+        </thead>
         {% for area in areas %} 
         <tr>
             <td rowspan="{{area.housecount}}">{{area.id}}</td>
