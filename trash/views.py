@@ -6,6 +6,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from numpy import true_divide
 from trash.models import *
 from django.contrib import messages 
 from django.urls import reverse
@@ -438,14 +439,15 @@ def admin_permissions(request):
     #house = Houses.objects.filter(area = area)
    # print("admin_permissions houses: ",house)
     areas = Areas.objects.all()
-    collectors = Collector.objects.prefetch_related('area', 'user').all()
+    #collectors = Collector.objects.prefetch_related('area', 'user').all()
+    collectors = Collector.objects.all()
     collector_houses = {}
-    for collector in collectors.iterator():
+    for collector in collectors:
             # print(" .........entered if ............")
             # print(collector.area.area_name)
             houses = Houses.objects.filter(area = collector.area.id)
             collector_houses[collector] = houses
-            for house in houses.iterator():
+            for house in houses:
                 pass
                 # print("Name:", collector.user.username)
                 # print("houses: ",house.house_name)
@@ -465,6 +467,7 @@ def admin_permissions(request):
          'findKey': findKey,
          'houses': houses,
          'collector_houses' : collector_houses,
+         'downloadKey': True,
          
 
     }
@@ -566,6 +569,7 @@ def viewarea(request):
         'adminKey' : adminKey,
         'houses': houses,
         'areas': area,
+        'viewarea': True,
     }
     return render(request, 'viewareas.html', context)
 
@@ -604,6 +608,7 @@ def admin_search(request):
             'search' : search,
             'adminKey' : adminKey,
             'collector_houses': collector_houses,
+            'findKey': True,
         }
 
         return render(request, 'admin-search.html',context)

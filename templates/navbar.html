@@ -70,14 +70,18 @@
             <a class="nav-link" href="{% url 'logoutt' %}"><i class='fas fa-sign-out-alt'></i> Logout</a>
           </li>
         {% else %}
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'csvfile' %}"><i class='fas fa-download'></i> Download file</a>
-          </li>
-          
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'reset' %}"> Reset</a>
-          </li> 
-          
+          {% if viewarea %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'reset' %}"> Reset</a>
+            </li>
+          {% endif %}
+
+          {% if downloadKey %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'csvfile' %}"><i class='fas fa-download'></i> Download file</a>
+            </li>
+          {% endif %}
+
           <li class="nav-item">
             <a class="nav-link" href="{% url 'logoutt' %}"><i class='fas fa-sign-out-alt'></i> Logout</a>
           </li>
